@@ -144,4 +144,18 @@ const revenue = [
   { month: 'Dec', revenue: 4800 },
 ];
 
-export { users, customers, invoices, revenue };
+const stocks = [
+  { ticker: 'AAPL', company_name: 'Apple Inc', market: 'NSDQ', stock_type: 'STOCK', currency_code: 'USD'},
+  { ticker: 'NVDA', company_name: 'NVIDIA Corp', market: 'NSDQ', stock_type: 'STOCK', currency_code: 'USD'},
+  { ticker: '0700', company_name: 'Tencent Holdings Ltd', market: 'HKG', stock_type: 'STOCK', currency_code: 'HKD'},
+  { ticker: '000001', company_name: 'Shanghai Stock Exchange Composite Index', market: 'SHA', stock_type: 'ETF', currency_code: 'CNY'},
+]
+
+const currencies = [
+  {currency_code: 'USD', currency_name: 'US Dollar', conversion_rate_to_cny: 7.264000},
+  {currency_code: 'GBX', currency_name: 'British Sterling', conversion_rate_to_cny: 0.092252},
+  {currency_code: 'HYC', currency_name: 'Huayao Coin', conversion_rate_to_cny: 1},
+  {currency_code: 'CNY', currency_name: 'Chinese Yuan', conversion_rate_to_cny: 1},
+  {currency_code: 'HKD', currency_name: 'Hong Kong Dollar', conversion_rate_to_cny: 0.933142},
+]
+export { users, customers, invoices, revenue, stocks, currencies};

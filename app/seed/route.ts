@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { db } from '@vercel/postgres';
-import { invoices, customers, revenue, users } from '../lib/placeholder-data';
+import { invoices, customers, revenue, users, stocks, currencies } from '../lib/placeholder-data';
 
 const client = await db.connect();
 
@@ -94,13 +94,59 @@ async function seedRevenue() {
   return insertedRevenue;
 }
 
+async function seedStocks() {
+  await client.sql`
+    CREATE TABLE IF NOT EXISTS stocks (
+      ticker VARCHAR(255) NOT NULL UNIQUE PRIMARY KEY,
+      company_name VARCHAR(255) NOT NULL,
+      market VARCHAR(255) NOT NULL,
+      stock_type VARCHAR(255) NOT NULL,
+      currency_code CHAR(3) NOT NULL,
+      FOREIGN KEY (currency_code) REFERENCES currencies(currency_code) ON DELETE CASCADE;
+    );
+  `;
+
+  const insertedStocks = await Promise.all(stocks.map(
+      (stock) => client.sql`
+        INSERT INTO stocks (ticker, company_name, market, stock_type, currency_code)
+        VALUES (${stock.ticker}, ${stock.company_name}, ${stock.market}, ${stock.stock_type}, ${stock.currency_code})
+        ON CONFLICT (ticker) DO NOTHING;
+      `,),
+  );
+
+  return insertedStocks;
+}
+
+async function seedCurrencies() {
+  await client.sql`
+    CREATE TABLE IF NOT EXISTS currencies (
+      currency_code CHAR(3) NOT NULL PRIMARY KEY, -- ISO 4217 currency code
+      currency_name VARCHAR(255) NOT NULL,       -- Full name of the currency
+      conversion_rate_to_cny DECIMAL(10, 6) NOT NULL, -- Conversion rate to USD
+      last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- Timestamp of last update
+    );
+  `;
+
+  const insertedCurrencies = await Promise.all(currencies.map(
+      (currency) => client.sql`
+        INSERT INTO stocks (currency_code, currency_name, conversion_rate_to_cny)
+        VALUES (${currency.currency_code}, ${currency.currency_name}, ${currency.conversion_rate_to_cny})
+        ON CONFLICT (currency_code) DO NOTHING;
+      `,),
+  );
+
+  return insertedCurrencies;
+}
+
 export async function GET() {
   try {
     await client.sql`BEGIN`;
-    await seedUsers();
+    /* await seedUsers();
     await seedCustomers();
     await seedInvoices();
-    await seedRevenue();
+    await seedRevenue(); */
+    await seedStocks()
+    await seedCurrencies()
     await client.sql`COMMIT`;
 
     return Response.json({ message: 'Database seeded successfully' });
