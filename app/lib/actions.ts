@@ -63,7 +63,7 @@ export type State = {
 
 const SignupUser = UserSchema.omit({ id: true })
 
-export async function createUser(prevState: State, formData: FormData) {
+export async function createUser(prevState: string | undefined, formData: FormData) {
     const validatedFields = SignupUser.safeParse({
         name: formData.get('name'),
         email: formData.get('email'),
@@ -71,10 +71,7 @@ export async function createUser(prevState: State, formData: FormData) {
     })
 
     if (!validatedFields.success) {
-        return {
-            errors: validatedFields.error.flatten().fieldErrors,
-            message: 'Missing Fields. Failed to Signup User.',
-        };
+        return 'Missing Fields. Failed to Signup User.'
     }
 
     const { name, email, password } = validatedFields.data;
@@ -85,6 +82,7 @@ export async function createUser(prevState: State, formData: FormData) {
     }
     try {
         await signIn('credentials', formData);
+        return ''
     } catch (error) {
         return 'Sign In Error: You were registered, but we couldn\'t sign you in.';
     }
